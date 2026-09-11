@@ -51,7 +51,7 @@ flowchart TB
     S1 --> ENV["canonical envelope (make_document)"]
     S2 --> ENV
     S3 --> ENV
-    ENV --> DB[("MongoDB, db rera, one collection per state and type")]
+    ENV --> DB["MongoDB (db rera): one collection per state and type"]
     DB --> ENR["enrichment ladder: SearXNG search and certificate OCR"]
     ENR --> DB
     DB --> SHEET["Google Sheet dashboard"]
