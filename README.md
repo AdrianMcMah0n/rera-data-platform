@@ -44,17 +44,19 @@ the browser where possible and a headless browser only where not:
 
 ```mermaid
 flowchart TB
-    CLI[run.py dispatcher<br/>python run.py &lt;state&gt; &lt;projects|agents&gt;] --> REG[REGISTRY]
-    REG --> S1[state scraper 1]
-    REG --> S2[state scraper 2]
-    REG --> S3[... 28 states x type]
-    S1 & S2 & S3 --> ENV[canonical envelope<br/>make_document]
-    ENV --> DB[(MongoDB: db rera<br/>one collection per state+type)]
-    DB --> ENR[enrichment ladder<br/>SearXNG search + certificate OCR]
+    CLI["run.py dispatcher (python run.py state projects or agents)"] --> REG["REGISTRY"]
+    REG --> S1["state scraper 1"]
+    REG --> S2["state scraper 2"]
+    REG --> S3["... 28 states, projects and agents"]
+    S1 --> ENV["canonical envelope (make_document)"]
+    S2 --> ENV
+    S3 --> ENV
+    ENV --> DB[("MongoDB, db rera, one collection per state and type")]
+    DB --> ENR["enrichment ladder: SearXNG search and certificate OCR"]
     ENR --> DB
-    DB --> SHEET[Google Sheet dashboard]
-    DB --> XLS[per-state weekly Excel]
-    DB --> MAIL[weekly emails to state owners]
+    DB --> SHEET["Google Sheet dashboard"]
+    DB --> XLS["per-state weekly Excel"]
+    DB --> MAIL["weekly emails to state owners"]
 ```
 
 ### One dispatcher, many self-contained scrapers
