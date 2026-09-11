@@ -111,19 +111,37 @@ sub-chunking beats session tokens that expire mid-run (Telangana: 10,998 project
 
 ## Filling in the contacts that portals do not publish
 
-Many portals list a project or agent but not a reachable contact. Two enrichment
-sources close that gap, gated so they never overwrite a real portal value:
+Many portals list a project or agent but never publish a reachable contact.
+Rather than jump straight to a web search, enrichment runs as a **ladder**:
+cheapest and most authoritative source first, so an expensive search only happens
+for what genuinely cannot be found any other way. At every rung a value is only
+promoted to a contact field when it clears a confidence gate, and a
+portal-published value is never overwritten.
 
-- **Web search enrichment** via a self-hosted SearXNG metasearch engine on Docker,
-  about 17 times faster than the single-engine client it replaced, with
-  confidence-gated writes (a match is only promoted to a contact field when domain
-  and name evidence agree) and a weekly-then-monthly retry policy that cut
-  redundant searches per run from over 5,000 to about 50.
-- **Certificate OCR** for portals whose only contact is a handwritten Form-G inside
-  a scanned certificate PDF: a vision model reads it, and cross-record duplicate
-  detection plus per-field validation catch and purge fabricated values (a vision
-  model invents plausible phone numbers when it cannot read one, and the same
-  fabricated number appearing for several agents is the giveaway).
+1. **The company's own contact pool.** If a verified contact for this developer
+   is already on file, reuse it. Free and authoritative.
+2. **Sibling projects by the same builder.** A promoter usually registers several
+   projects, and a contact captured on one fills the blanks on another. This is
+   the key cross-verification step: match on the promoter entity, then carry the
+   known contact across that developer's other registrations.
+3. **Public company-profile databases for India.** Company-registry and
+   company-profile records that expose a director or company contact for the
+   developer entity. Matched offline against the promoter name, so it costs no
+   live search.
+4. **Certificate OCR**, where a portal's only contact is a handwritten Form-G
+   inside a scanned certificate PDF: a vision model reads it, and cross-record
+   duplicate detection plus per-field validation catch and purge fabricated values
+   (a vision model invents plausible phone numbers when it cannot read one, and the
+   same fabricated number appearing for several agents is the giveaway).
+5. **Self-hosted SearXNG web search**, the last resort: a metasearch engine on
+   Docker, about 17 times faster than the single-engine client it replaced, with
+   confidence-gated writes (a match is promoted only when domain and name evidence
+   agree) and a weekly-then-monthly retry policy that cut redundant searches per
+   run from over 5,000 to about 50.
+
+Because the free, authoritative rungs run first, the web search at the bottom only
+ever has to work on the genuine remainder, which is what keeps the whole
+enrichment step fast and cheap on a weekly schedule.
 
 ## Verification is a separate question from correctness
 
